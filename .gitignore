@@ -1,0 +1,11 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# SSH keys
+*.pem
+*.ppk
+
+# Cloud9
+.c9/
