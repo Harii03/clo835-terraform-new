@@ -69,7 +69,7 @@ resource "aws_security_group" "clo_sg" {
 
 resource "aws_instance" "clo_835" {
   ami                    = "ami-0157af9aea2eef346"
-  instance_type          = "t2.medium"
+  instance_type          = "t3.medium"
   key_name               = "Assignment - 1"
   vpc_security_group_ids = [aws_security_group.clo_sg.id]
 
