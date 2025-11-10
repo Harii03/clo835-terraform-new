@@ -24,60 +24,6 @@ resource "aws_ecr_repository" "clo835_repo" {
   }
 }
 
-# IAM Role for EC2 to access ECR
-resource "aws_iam_role" "ec2_ecr_role" {
-  name = "ec2-ecr-access-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# IAM Policy for ECR access
-resource "aws_iam_role_policy" "ecr_policy" {
-  name = "ecr-access-policy"
-  role = aws_iam_role.ec2_ecr_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:GetRepositoryPolicy",
-          "ecr:DescribeRepositories",
-          "ecr:ListImages",
-          "ecr:DescribeImages",
-          "ecr:BatchGetImage",
-          "ecr:GetLifecyclePolicy",
-          "ecr:GetLifecyclePolicyPreview",
-          "ecr:ListTagsForResource",
-          "ecr:DescribeImageScanFindings"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-# IAM Instance Profile
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2-ecr-instance-profile"
-  role = aws_iam_role.ec2_ecr_role.name
-}
-
 resource "aws_security_group" "clo_sg" {
   name        = "clo-835-sg"
   description = "Security group for CLO-835 instance"
@@ -115,7 +61,6 @@ resource "aws_instance" "clo_835" {
   instance_type          = "t2.micro"
   key_name               = "Assignment - 1"
   vpc_security_group_ids = [aws_security_group.clo_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   # User data to install Docker on startup
   user_data = <<-EOF
@@ -138,8 +83,4 @@ output "instance_public_ip" {
 
 output "ecr_repository_url" {
   value = aws_ecr_repository.clo835_repo.repository_url
-}
-
-output "ecr_repository_name" {
-  value = aws_ecr_repository.clo835_repo.name
 }
