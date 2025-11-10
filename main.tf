@@ -11,7 +11,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# ECR Repository for your Docker images
+# ECR Repository - this usually works even with restricted permissions
 resource "aws_ecr_repository" "clo835_repo" {
   name = "clo835-assignment1-app"
 
@@ -62,11 +62,11 @@ resource "aws_instance" "clo_835" {
   key_name               = "Assignment - 1"
   vpc_security_group_ids = [aws_security_group.clo_sg.id]
 
-  # User data to install Docker on startup
+  # User data to install Docker and git on startup
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
-              sudo yum install -y docker
+              sudo yum install -y docker git
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -a -G docker ec2-user
@@ -79,8 +79,10 @@ resource "aws_instance" "clo_835" {
 
 output "instance_public_ip" {
   value = aws_instance.clo_835.public_ip
+  description = "Public IP address of the EC2 instance"
 }
 
 output "ecr_repository_url" {
   value = aws_ecr_repository.clo835_repo.repository_url
+  description = "ECR repository URL for Docker images"
 }
